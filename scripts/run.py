@@ -8,6 +8,7 @@ tolerance = 0.1 # 0.1 m2 in equal area projection
 stem = 'catEndoMERITpfaf_' # coomon part of the file names
 extension = '.gpkg'
 
+# North America Domain Shapes
 shp_std(stem+'71', extension, path, field_name, tolerance)
 shp_std(stem+'72', extension, path, field_name, tolerance)
 shp_std(stem+'73', extension, path, field_name, tolerance)
