@@ -126,8 +126,11 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
         shp_hole.to_file(name_of_dir+name_of_file+'_hole') #save any hole to check
         
     str_temp = "Total number of shapes = "+str(shp_original.shape[0])+" \n"
+    logfile.write(str_temp)
     str_temp = "Total number of invalid shapes = "+str(number_invalid)+" \n"
+    logfile.write(str_temp)
     str_temp = "Total number of resolved invalid shapes = "+str(number_resolved)+" \n"
+    logfile.write(str_temp)
     str_temp = "Total number of not resolved invalid shapes = "+str(number_not_resolved)+" \n"
     logfile.write(str_temp)
     logfile.close() # close the log gile
