@@ -11,6 +11,7 @@ module load python/3.5  # load the python version
 virtualenv --no-download $SLURM_TMPDIR/env
 source $SLURM_TMPDIR/env/bin/activate
 
+module load proj
 pip install --no-index --upgrade pip
 pip install --no-index pandas
 pip install --no-index shapely
