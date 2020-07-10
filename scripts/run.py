@@ -1,6 +1,6 @@
 #!/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3.5.4/bin/python
 
-from shp_std_def.py import *
+from shp_std_def import *
 
 path = '/project/6008034/Model_Output/ClimateForcingData/MERIT_Hydro_basin/'
 field_name = 'segId'
