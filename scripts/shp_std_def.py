@@ -121,7 +121,7 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
             logfile.write(str_temp)
          
 
-    shp_poly.to_file(name_of_dir+name_of_file+'_poly')
+    shp_poly.to_file(name_of_dir+name_of_file+'_valid_poly')
     if shp_hole is not None:
         shp_hole.to_file(name_of_dir+name_of_file+'_hole') #save any hole to check
         
