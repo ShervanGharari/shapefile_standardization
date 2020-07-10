@@ -37,9 +37,7 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
     shp_poly     = shp_original
     shp_hole     = None
     
-    print(shp_original.shape[0])
-    
-    
+    #print(shp_original.shape[0])
     logfile = open(name_of_dir+name_of_file+'.txt',"w") # preparing the log file to write
     
     number_invalid = 0 # counter for invalid shapes
@@ -68,12 +66,12 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
             #shp_temp.columns = ['geometry'] # naming geometry column
             shp_temp = gpd.GeoDataFrame(shp_temp) # convert multipolygon to a shapefile with polygons only
             shp_temp.columns = ['geometry'] # naming geometry column
-            print(shp_temp)
+            #print(shp_temp)
         if polys.type is 'MultiPolygon':
             print(polys.type)
             shp_temp = gpd.GeoDataFrame(polys) # convert multipolygon to a shapefile with polygons only
             shp_temp.columns = ['geometry'] # naming geometry column
-            print(shp_temp)
+            #print(shp_temp)
 
         has_holes = False # initializing hole as false
         shp_temp['CCW'] = 0 # initialize check for couterclockwise (holes)
@@ -82,7 +80,7 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
             if poly.exterior.is_ccw is True: # then the polgone is a hole
                 shp_temp['CCW'].iloc[index1] = 1 # set the hole flag to 1
                 shp_temp['geometry'].iloc[index1] = shapely.geometry.polygon.orient(poly, sign = +1) # +1 make it CCW
-                print(shp_temp['geometry'].iloc[index1])
+                #print(shp_temp['geometry'].iloc[index1])
                 has_holes = True
 
         shp_temp_polys = shp_temp[shp_temp.CCW ==0] # get the polyons that are not couter clockwise
