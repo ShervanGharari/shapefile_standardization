@@ -33,7 +33,7 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
     a log file in the same folder descringin the invalid shapefiles
     """
 
-    shp_original = gpd.read_file(name_of_file+name_of_ext)
+    shp_original = gpd.read_file(name_of_dir+name_of_file+name_of_ext)
     shp_poly     = shp_original
     shp_hole     = None
     
@@ -121,9 +121,9 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
             logfile.write(str_temp)
          
 
-    shp_poly.to_file(name_of_dir+name_of_file+'_poly.shp')
+    shp_poly.to_file(name_of_dir+name_of_file+'_poly')
     if shp_hole is not None:
-        shp_hole.to_file(name_of_dir+name_of_file+'_hole.shp') #save any hole to check
+        shp_hole.to_file(name_of_dir+name_of_file+'_hole') #save any hole to check
         
     str_temp = "Total number of shapes = "+str(shp_original.shape[0])+" \n"
     str_temp = "Total number of invalid shapes = "+str(number_invalid)+" \n"
