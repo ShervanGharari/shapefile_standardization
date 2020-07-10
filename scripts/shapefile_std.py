@@ -33,7 +33,7 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
     a log file in the same folder descringin the invalid shapefiles
     """
 
-    shp_original = gpd.read_file('/Users/shg096/Desktop/catEndoMERITpfaf_74.gpkg') # 74 Mississippi
+    shp_original = gpd.read_file(name_of_file+name_of_ext)
     shp_poly     = shp_original
     shp_hole     = None
     
