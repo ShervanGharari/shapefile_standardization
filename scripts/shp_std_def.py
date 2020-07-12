@@ -37,7 +37,7 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
     shp_poly     = shp_original
     shp_hole     = None
     
-    #print(shp_original.shape[0])
+    # print(shp_original.shape[0])
     logfile = open(name_of_dir+name_of_file+'.txt',"w") # preparing the log file to write
     
     number_invalid = 0 # counter for invalid shapes
