@@ -14,5 +14,5 @@ extension = '.shp'
 #shp_std('cat_pfaf_4_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance)
 #shp_std('cat_pfaf_5_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance)
 #shp_std('cat_pfaf_6_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance)
-shp_std('cat_pfaf_7_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance)
-#shp_std('cat_pfaf_8_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance)
+shp_std('cat_pfaf_7_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance) # North America
+shp_std('cat_pfaf_8_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance) # Arctic
