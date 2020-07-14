@@ -2,7 +2,7 @@
 #SBATCH --account=rpp-kshook
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=16G
-#SBATCH --time=0-10:00           # time (DD-HH:MM)
+#SBATCH --time=1-00:00           # time (DD-HH:MM)
 #SBATCH --job-name=shapefilecorrection
 #SBATCH --error=errors1
 

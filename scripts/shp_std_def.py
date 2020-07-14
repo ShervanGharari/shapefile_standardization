@@ -13,7 +13,7 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
 
     This function gets name of a shapefile, its directory, and its extensions (such as gpkg or shp) and
     save a stadard shapefile. if presence it also save the holes of a shapefile
-    
+
     Arguments
     ---------
     name_of_file: string, the name of the shp file
@@ -21,11 +21,11 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
     name_of_dir: string, the name of directory where the shp file is located
     ID_field: string, the name of the field in the original shapefile that is used for keeping track of holes
     area_tolerance: float; the tolerance to compare area before and after correction and report differences
-    
+
     Returns
     -------
-    
-    
+
+
     Saves Files
     -------
     a shp file that includes corrected polygones
@@ -34,22 +34,23 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
     """
 
     shp_original = gpd.read_file(name_of_dir+name_of_file+name_of_ext)
+    # shp_original = shp_original.sort_values([ID_field]) # it doesnt sort the shapefile, I dont know why!?
     shp_poly     = shp_original
     shp_hole     = None
-    
-    # print(shp_original.shape[0])
-    logfile = open(name_of_dir+name_of_file+'.txt',"w") # preparing the log file to write
-    
+
+    # print(shp_original.head(1000))
+    logfile = open(name_of_dir+name_of_file+'_log.txt',"w") # preparing the log file to write
+
     number_invalid = 0 # counter for invalid shapes
     number_resolved = 0 # counter for resolved invalid shapes
     number_not_resolved = 0 # counter for not resolved invalid shapes
-    
+
     for index, _ in shp_original.iterrows():
 
-        print(index)
+        # print(index)
         polys = shp_original.geometry.iloc[index] # get the shape
         area_before = polys.area # area before changes
-        
+
         invalid = False # initializing invalid as false
         # check if the shapefile is valid
         if polys.is_valid is False: # check if the geometry is invalid
@@ -61,14 +62,14 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
 
         # put the shape into a Polygon or MultiPolygon
         if polys.type is 'Polygon':
-            print(polys.type)
+            # print(polys.type)
             shp_temp = gpd.GeoSeries(polys) # convert multipolygon to a shapefile with polygons only
             #shp_temp.columns = ['geometry'] # naming geometry column
             shp_temp = gpd.GeoDataFrame(shp_temp) # convert multipolygon to a shapefile with polygons only
             shp_temp.columns = ['geometry'] # naming geometry column
             #print(shp_temp)
         if polys.type is 'MultiPolygon':
-            print(polys.type)
+            # print(polys.type)
             shp_temp = gpd.GeoDataFrame(polys) # convert multipolygon to a shapefile with polygons only
             shp_temp.columns = ['geometry'] # naming geometry column
             #print(shp_temp)
@@ -90,7 +91,7 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
         polys_temp = unary_union(polys_temp) # unify all the polygons into a multipolygons
         shp_poly.geometry.iloc[index] = polys_temp.buffer(0) # fix the issue by buffer(0)
         area_after = shp_poly.geometry.iloc[index].area # area after changes
-        
+
         # check if the shapefile becomes valid
         if shp_poly.geometry.iloc[index].is_valid is True and invalid is True: # check if the geometry is invalid
             str_temp = " and becomes valid \n"
@@ -112,17 +113,17 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
                 shp_hole = gpd.GeoDataFrame( pd.concat([shp_hole, shp_temp_holes], ignore_index=True) )
             str_temp = "Shape has a hole \n"
             logfile.write(str_temp)
-        
+
         if abs(area_before-area_after)>area_tolerance: # tolernace can be different based on projection
             str_temp = "shape area changes abs("+str(area_before)+"-"+str(area_after)+") = "+\
             str(area_before-area_after)+" \n"
             logfile.write(str_temp)
-         
+
 
     shp_poly.to_file(name_of_dir+name_of_file+'_valid_poly')
     if shp_hole is not None:
         shp_hole.to_file(name_of_dir+name_of_file+'_hole') #save any hole to check
-        
+
     str_temp = "Total number of shapes = "+str(shp_original.shape[0])+" \n"
     logfile.write(str_temp)
     str_temp = "Total number of invalid shapes = "+str(number_invalid)+" \n"
@@ -132,5 +133,5 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
     str_temp = "Total number of not resolved invalid shapes = "+str(number_not_resolved)+" \n"
     logfile.write(str_temp)
     logfile.close() # close the log gile
-    
-    
+
+
