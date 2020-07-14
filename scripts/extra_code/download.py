@@ -9,7 +9,7 @@ import re
 # destination to saev files
 des_loc = "/project/6008034/Model_Output/ClimateForcingData/MERIT_Hydro_basin_bugfixed/"
 # page that the link to files are located
-http_page = "XXX/MERIT_Hydro_v07_Basins_v01_bugfix1/pfaf_level_02/" # replace XXX and should not be distributed publicly
+http_page = "XXX/XXXbugfix1/pfaf_level_02/" # replace XXX and should not be distributed publicly
 
 
 # first get all the links in the page
