@@ -2,24 +2,12 @@
 
 from shp_std_def import *
 
-# path = '/project/6008034/Model_Output/ClimateForcingData/MERIT_Hydro_basin_original/'
 path = '/project/6008034/Model_Output/ClimateForcingData/MERIT_Hydro_basin_bugfixed/'
 field_name = 'COMID'
-tolerance = 0.0000001 # 0.1 m2 in equal area projection
+tolerance = 0.0000001 # 1000 m2 in equal area projection an arbitatry value which is less than a DEM grid used for creating the product
 extension = '.shp'
 
-# North America Domain Shapes
-#shp_std('cat_pfaf_1_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance)
-#shp_std('cat_pfaf_2_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance)
-#shp_std('cat_pfaf_3_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance)
-#shp_std('cat_pfaf_4_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance)
-#shp_std('cat_pfaf_5_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance)
-#shp_std('cat_pfaf_6_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance)
-#shp_std('cat_pfaf_7_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance) # North America
-#shp_std('cat_pfaf_8_MERIT_Hydro_v07_Basins_v01', extension, path, field_name, tolerance) # Arctic
-
-
-shp_std('cat_pfaf_11_MERIT_Hydro_v07_Basins_v01_bugfix1_b', extension, path, field_name, tolerance) #
+shp_std('cat_pfaf_11_MERIT_Hydro_v07_Basins_v01_bugfix1_b', extension, path, field_name, tolerance) # one of the shape COMID 11040208 is manually corrected
 shp_std('cat_pfaf_12_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
 shp_std('cat_pfaf_13_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
 shp_std('cat_pfaf_14_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
@@ -60,7 +48,7 @@ shp_std('cat_pfaf_52_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field
 shp_std('cat_pfaf_53_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
 shp_std('cat_pfaf_54_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
 shp_std('cat_pfaf_55_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_56_MERIT_Hydro_v07_Basins_v01_bugfix1_b', extension, path, field_name, tolerance) #
+shp_std('cat_pfaf_56_MERIT_Hydro_v07_Basins_v01_bugfix1_b', extension, path, field_name, tolerance) # one of the shapes COMID 56045327 is manually corrected
 shp_std('cat_pfaf_57_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
 
 shp_std('cat_pfaf_61_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
