@@ -13,12 +13,12 @@ for basin in basins:
     shp2 = gpd.read_file ('/Users/shg096/Desktop/era5_land_withArea.shp') # original /project/6008034/Model_Output/ClimateForcingData/ERA5_NA_shapefile_land_wsg84_withArea
     print(shp2.crs)
     shp_int = intersection_shp(shp1, shp2)
-    shp_int = shp_int.rename(columns={"S_1_COMID" : "hruId", # hruId that is used as SUMMA computational units ID
-                                      "S_1_lat_c" : "hrulat", # lon of hru based on centroid
-                                      "S_1_lon_c" : "hrulon", # lat of hru based on centroid
+    shp_int = shp_int.rename(columns={"S_1_COMID" : "COMID", # hruId that is used as SUMMA computational units ID
+                                      "S_1_lat_c" : "lat", # lon of hru
+                                      "S_1_lon_c" : "lon", # lat of hru
                                       "S_2_shp_ID": "ERA5ID", # ERA5 grid ID, not used
-                                      "S_2_lat"   : "latForce", # lon of forcing grid to be read
-                                      "S_2_lon"   : "lonForce", # lat of forcing grid to be read
-                                      "AP1N"      : "WForce"}) # weight of each ERA5 grid in subbasin
-    shp_int = shp_int.sort_values(by=['hruId'])
+                                      "S_2_lat"   : "ERA5lat", # lon of forcing grid to be read
+                                      "S_2_lon"   : "ERA5lon", # lat of forcing grid to be read
+                                      "AP1N"      : "ERA5W"}) # weight of each ERA5 grid in subbasin
+    shp_int = shp_int.sort_values(by=['COMID'])
     shp_int.to_file(path+'cat_pfaf_'+basin+'_MERIT_Hydro_v07_Basins_v01_bugfix1_valid_poly_Era5.shp')
