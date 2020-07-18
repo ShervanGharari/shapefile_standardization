@@ -9,16 +9,25 @@ The holes, if present, are taken out and saved as a separaete shapefile which ca
 
 The code shp_std_def.py can be used to correct the shapefile. It loops over the shape of a shapefile, decompose the shape into polygons and then merge them. if there is a signle hole in the shape it take it out and save it as a separat shapefile.
 
-There were two occations for COMID of XXX and XXX that were fixed manually. Still after applying the correction to the shapefile and based on the check geometry there are handful of shapes that are not validated. Those shapes are manually validated and put back into the shapefiles. The corrected shapefiles are check on more time in QGIS for validity of their shapes. As an example, in the manually corrected shapefiles so far from North America COMID of XXX are manually fixed.
+There were two occations for COMID of 11040208 and 56045327 that were fixed manually with extension b in projects/rpp-hwheater/Model_Output/ClimateForcingData/MERIT_Hydro_basin_bugfixed. Still after applying the correction to the shapefile and based on the check geometry there are handful of shapes that are not validated (projects/rpp-hwheater/Model_Output/ClimateForcingData/MERIT_Hydro_basin_bugfixed_valid). Those shapes are manually validated and put back into the shapefiles (projects/rpp-hwheater/Model_Output/ClimateForcingData/MERIT_Hydro_basin_bugfixed_valid_manual). The corrected shapefiles are check on more time in QGIS for validity of their shapes. As an example, in the manually corrected shapefiles so far from North America COMID of 72055397, 72055872, 72058490, 75027926, 78012325, 81033705, 82004214, 82041566, 82002087 are manually fixed (projects/rpp-hwheater/Model_Output/ClimateForcingData/MERIT_Hydro_basin_bugfixed_valid_manual/fixed_shapes).
 
 The manually fixed shapefiles are intersected with the ERA-5 shapefile based on candex. The relevant fields are:
 
 "COMID"    # COMID (hruId) that is used for SUMMA
+
 "lat"      # lat of hru
+
 "lon"      # lon of hru
+
 "ERA5ID"   # ERA5 grid ID, not used
+
 "ERA5lat"  # lat of forcing grid to be read
+
 "ERA5lon"  # lon of forcing grid to be read
+
 "ERA5W"    # weight of each ERA5 grid in subbasin
 
+### Note
+
+The shapefiles are corrected for the North America domain can become invalid if they undergo any changes, intersection, etc, depending on the program used. It is always best to check them after any manupulaion in case valid resulting shapefiles are needed.
 
