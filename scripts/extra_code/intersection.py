@@ -14,11 +14,11 @@ for basin in basins:
     print(shp2.crs)
     shp_int = intersection_shp(shp1, shp2)
     shp_int = shp_int.rename(columns={"S_1_COMID" : "COMID", # hruId that is used as SUMMA computational units ID
-                                      "S_1_lat_c" : "lat", # lon of hru
-                                      "S_1_lon_c" : "lon", # lat of hru
+                                      "S_1_lat_c" : "lat", # lat of hru
+                                      "S_1_lon_c" : "lon", # lon of hru
                                       "S_2_shp_ID": "ERA5ID", # ERA5 grid ID, not used
-                                      "S_2_lat"   : "ERA5lat", # lon of forcing grid to be read
-                                      "S_2_lon"   : "ERA5lon", # lat of forcing grid to be read
+                                      "S_2_lat"   : "ERA5lat", # lat of forcing grid to be read
+                                      "S_2_lon"   : "ERA5lon", # lon of forcing grid to be read
                                       "AP1N"      : "ERA5W"}) # weight of each ERA5 grid in subbasin
     shp_int = shp_int.sort_values(by=['COMID'])
     shp_int.to_file(path+'cat_pfaf_'+basin+'_MERIT_Hydro_v07_Basins_v01_bugfix1_valid_poly_Era5.shp')
