@@ -2,7 +2,122 @@ import pandas as pd
 from shapely.ops import unary_union
 import shapely
 import geopandas as gpd
+from shapely.geometry import Polygon
 
+
+file_name  = '/Users/shg096/Desktop/hillslope/hillslope_21_clean.shp'
+cat1 = gpd.read_file('/Users/shg096/Desktop/catchments/cat_pfaf_21_MERIT_Hydro_v07_Basins_v01_bugfix1.shp')
+final_file_name = '/Users/shg096/Desktop/hillslopes_corrected_21.shp'
+shp = gpd.read_file(file_name)
+epsilon = 0.00000001 # in degree, approximately 1 mm
+
+## STEP1, load a shapefile, and find its intesection with itself. there are
+## there should be some holes in the shapefile. the holes are given as a separaete shape
+
+shp_temp = gpd.overlay(shp, shp, how='intersection')
+shp_temp = shp_temp [shp_temp.FID_1 != shp_temp.FID_2]
+shp_temp.to_file('/Users/shg096/Desktop/temp1.shp')
+
+shp_temp = gpd.overlay(shp, shp_temp, how='difference')
+shp_temp.to_file('/Users/shg096/Desktop/temp2.shp')
+
+## STEP2, remove possible cat from the unresolved costal hillslope
+shp_temp = gpd.overlay(shp_temp, cat1, how='difference')
+shp_temp.to_file('/Users/shg096/Desktop/temp3.shp')
+
+## STEP3, break the polygons into separate multipolygons, remove the links (lines)
+shp_temp = shp_temp.buffer(-epsilon).buffer(epsilon)
+shp_temp.to_file('/Users/shg096/Desktop/temp4.shp')
+
+## STEP4, break the polygones into separete shape in a shapefile
+shp = gpd.read_file('/Users/shg096/Desktop/temp4.shp')
+print(shp)
+print(type(shp))
+
+shp_all = None
+
+for index, _ in shp.iterrows():
+    
+    print(index)
+
+    polys = shp.geometry.iloc[index] # get the shape
+
+    if polys.type is 'Polygon':
+        # print(polys.type)
+        shp_temp = gpd.GeoSeries(polys) # convert multipolygon to a shapefile with polygons only
+        #shp_temp.columns = ['geometry'] # naming geometry column
+        shp_temp = gpd.GeoDataFrame(shp_temp) # convert multipolygon to a shapefile with polygons only
+        shp_temp.columns = ['geometry'] # naming geometry column
+        print(shp_temp)
+    if polys.type is 'MultiPolygon':
+        # print(polys.type)
+        shp_temp = gpd.GeoDataFrame(polys) # convert multipolygon to a shapefile with polygons only
+        shp_temp.columns = ['geometry'] # naming geometry column
+        print(shp_temp)
+        
+    if shp_all is None:
+        shp_all = shp_temp
+    else:
+        shp_all = shp_all.append(shp_temp)
+    
+shp_all.to_file(final_file_name)
+
+def extract_poly_coords(geom):
+    if geom.type == 'Polygon':
+        exterior_coords = geom.exterior.coords[:]
+        interior_coords = []
+        for interior in geom.interiors:
+            interior_coords += interior.coords[:]
+    elif geom.type == 'MultiPolygon':
+        exterior_coords = []
+        interior_coords = []
+        for part in geom:
+            epc = extract_poly_coords(part)  # Recursive call
+            exterior_coords += epc['exterior_coords']
+            interior_coords += epc['interior_coords']
+    else:
+        raise ValueError('Unhandled geometry type: ' + repr(geom.type))
+    return {'exterior_coords': exterior_coords,
+            'interior_coords': interior_coords}
+
+def shp_std_2 (src_dir_name, src_file_name, final_dir_name, final_file_name, Field_ID_name, epsilon, list_id):
+    # load the shapefile
+    shp = gpd.read_file(src_dir_name+src_file_name)
+    print(shp.shape[0])
+    shp_new = shp # pass the shape to a new shape
+    shp_new['flag'] = 0 # add flag for the shapefile ids that are resolved
+    
+    for ID in list_id:
+        for index, _ in shp.iterrows():
+            if shp[Field_ID_name][index] == ID:
+                shp_temp = shp.geometry.iloc[index]
+                shp_temp = shp_temp.buffer(epsilon) # to amalgamate the polygones of multipolygons into a polygon
+                shp_temp = gpd.GeoSeries(shp_temp) # to geoseries
+                shp_temp = gpd.GeoDataFrame(shp_temp) # to geoframe
+                shp_temp.columns = ['geometry'] # call the colomn geometry
+                poly = shp_temp.geometry.iloc[0] # get the polygone from the shapefile
+                A = extract_poly_coords(poly) # extract the exterior
+                outer = A['exterior_coords'] # pass the exterior
+                poly_new = Polygon (outer) # make a polygone out of the 
+                shp_new.geometry.iloc[index] = poly_new # pass the geometry to the new shapefile
+                shp_new['flag'].iloc[index] = 1 # put flag as 1
+                shp_temp = shp_new.geometry.iloc[index] # get the shape
+                shp_temp = shp_temp.buffer(-epsilon) # redo the buffer
+                shp_temp = gpd.GeoSeries(shp_temp) # to geoseries
+                shp_temp = gpd.GeoDataFrame(shp_temp) # geo dataframe
+                shp_temp.columns = ['geometry'] # name the column as geometry
+                shp_new.geometry.iloc[index] = shp_temp.geometry.iloc[0] # pass that to the new shape
+
+    shp_new = shp_new [shp_new.flag ==1] # get the shapes that flag are 1
+    if not shp_new.empty:
+        shp_new = shp_new.drop(columns=['flag'])
+        shp_diff = gpd.overlay(shp, shp_new, how='difference') # get the difference
+        shp_all = shp_new.append(shp_diff) # append the fixed shapefiles to the diff
+        if shp.shape[0] == shp_all.shape[0]:
+            shp_new.to_file(final_dir_name+final_file_name+'fexed_shps') #saved the fixed shapefile
+            shp_all.to_file(final_dir_name+final_file_name) # save the entire
+        else:
+            print('input output have different lenght; check')
 
 def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
     """
