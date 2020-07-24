@@ -7,10 +7,10 @@ from shp_std_def import *
 # INPUTS, Download of the shapefiles
 
 IDs = ['21','22', '23', '24', '25','26','27','28','29']
-#IDs = ['21']
+IDs = ['21']
 http_path = 'http://hydrology.princeton.edu/data/mpan/for_martyn/'
 path = '/Users/shg096/Desktop/test/'
-path = '/project/6008034/Model_Output/ClimateForcingData/MERIT_Hydro_basin_bugfixed/'
+path = '/project/6008034/Model_Output/ClimateForcingData/MERIT_TEST/'
 
 
 #############
