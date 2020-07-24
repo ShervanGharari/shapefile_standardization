@@ -3,64 +3,154 @@ from shapely.ops import unary_union
 import shapely
 import geopandas as gpd
 from shapely.geometry import Polygon
+from bs4 import BeautifulSoup
+from urllib.request import Request, urlopen
+import requests
+import re
 
 
-file_name  = '/Users/shg096/Desktop/hillslope/hillslope_21_clean.shp'
-cat1 = gpd.read_file('/Users/shg096/Desktop/catchments/cat_pfaf_21_MERIT_Hydro_v07_Basins_v01_bugfix1.shp')
-final_file_name = '/Users/shg096/Desktop/hillslopes_corrected_21.shp'
-shp = gpd.read_file(file_name)
-epsilon = 0.00000001 # in degree, approximately 1 mm
+def download(des_loc,
+                   http_page,
+                   str1,
+                   str2):
+    """
+    @ author:                  Shervan Gharari
+    @ Github:                  https://github.com/ShervanGharari/shapefile_standardization
+    @ author's email id:       sh.gharari@gmail.com
+    @license:                  MIT
 
-## STEP1, load a shapefile, and find its intesection with itself. there are
-## there should be some holes in the shapefile. the holes are given as a separaete shape
-
-shp_temp = gpd.overlay(shp, shp, how='intersection')
-shp_temp = shp_temp [shp_temp.FID_1 != shp_temp.FID_2]
-shp_temp.to_file('/Users/shg096/Desktop/temp1.shp')
-
-shp_temp = gpd.overlay(shp, shp_temp, how='difference')
-shp_temp.to_file('/Users/shg096/Desktop/temp2.shp')
-
-## STEP2, remove possible cat from the unresolved costal hillslope
-shp_temp = gpd.overlay(shp_temp, cat1, how='difference')
-shp_temp.to_file('/Users/shg096/Desktop/temp3.shp')
-
-## STEP3, break the polygons into separate multipolygons, remove the links (lines)
-shp_temp = shp_temp.buffer(-epsilon).buffer(epsilon)
-shp_temp.to_file('/Users/shg096/Desktop/temp4.shp')
-
-## STEP4, break the polygones into separete shape in a shapefile
-shp = gpd.read_file('/Users/shg096/Desktop/temp4.shp')
-print(shp)
-print(type(shp))
-
-shp_all = None
-
-for index, _ in shp.iterrows():
+    This function gets name of a http and two str in the name of the link and save them in provided destnation
     
-    print(index)
 
-    polys = shp.geometry.iloc[index] # get the shape
-
-    if polys.type is 'Polygon':
-        # print(polys.type)
-        shp_temp = gpd.GeoSeries(polys) # convert multipolygon to a shapefile with polygons only
-        #shp_temp.columns = ['geometry'] # naming geometry column
-        shp_temp = gpd.GeoDataFrame(shp_temp) # convert multipolygon to a shapefile with polygons only
-        shp_temp.columns = ['geometry'] # naming geometry column
-        print(shp_temp)
-    if polys.type is 'MultiPolygon':
-        # print(polys.type)
-        shp_temp = gpd.GeoDataFrame(polys) # convert multipolygon to a shapefile with polygons only
-        shp_temp.columns = ['geometry'] # naming geometry column
-        print(shp_temp)
-        
-    if shp_all is None:
-        shp_all = shp_temp
-    else:
-        shp_all = shp_all.append(shp_temp)
+    Arguments
+    ---------
+    des_loc: string, the name of the source file including path and extension
+    http_page: string, the name of the corresponding catchment (subbasin) for the unresolved hills
+    str1: string, a part of the link name to filter
+    str2: string, a second part of the link name to filter
     
-shp_all.to_file(final_file_name)
+
+    Returns
+    -------
+
+
+    Saves Files
+    -------
+    downlaod the files from the websites and save them in the correct location
+    """
+
+    # first get all the links in the page
+    req = Request(http_page)
+    html_page = urlopen(req)
+    soup = BeautifulSoup(html_page, "lxml")
+    links = []
+    for link in soup.findAll('a'):
+        links.append(link.get('href'))
+
+    # specify the link to be downloaded
+    link_to_download = []
+    for link in links:
+        # if "hillslope" in link and "clean" in link: # links that have cat_pfaf and Basins in them
+        if str1 in link and str2 in link: # links that have cat_pfaf and Basins in them
+            link_to_download.append(link)
+            print(link)
+
+    # creat urls to download
+    urls =[]
+    for file_name in link_to_download:
+        urls.append(http_page+file_name) # link of the page + file names
+        print(http_page+file_name)
+    print(urls)
+
+    # loop to download the data
+    for url in urls:
+        name = url.split('/')[-1] # get the name of the file at the end of the url to download
+        r = requests.get(url) # download the URL
+        # print the specification of the download 
+        print(r.status_code, r.headers['content-type'], r.encoding)
+        # if download successful the statuse code is 200 then save the file, else print what was not downloaded
+        if r.status_code == 200:
+            print('download was successful for '+url)
+            with open(des_loc+name, 'wb') as f:
+                f.write(r.content)
+        else:
+            print('download was not successful for '+url)
+
+
+def shp_std_costal(name_of_source_file,
+                   name_of_cat_file,
+                   name_of_result_file,
+                   epsilon):
+    """
+    @ author:                  Shervan Gharari
+    @ Github:                  https://github.com/ShervanGharari/shapefile_standardization
+    @ author's email id:       sh.gharari@gmail.com
+    @license:                  MIT
+
+    This function gets name of a shapefile and remove inernal holes
+
+    Arguments
+    ---------
+    name_of_source_file: string, the name of the source file including path and extension
+    name_of_cat_file: string, the name of the corresponding catchment (subbasin) for the unresolved hills
+    name_of_result_file: string, the name of the file that includes fixed shapes including path and extension
+    
+
+    Returns
+    -------
+
+
+    Saves Files
+    -------
+    a shp file that includes corrected polygones
+    a possible shapefile that includes the fixed shapes
+    """
+    
+    shp = gpd.read_file(name_of_source_file)
+    cat1 = gpd.read_file(name_of_cat_file)
+
+
+    ## STEP1, load a shapefile, and find its intesection with itself. there are
+    ## there should be some holes in the shapefile. the holes are given as a separaete shape
+
+    shp_temp = gpd.overlay(shp, shp, how='intersection')
+    shp_temp = shp_temp [shp_temp.FID_1 != shp_temp.FID_2]
+    #shp_temp.to_file('temp1.shp')
+    shp_temp = gpd.overlay(shp, shp_temp, how='difference')
+    #shp_temp.to_file('temp2.shp')
+
+    ## STEP2, remove possible cat from the unresolved costal hillslope
+    shp_temp = gpd.overlay(shp_temp, cat1, how='difference')
+    #shp_temp.to_file('temp3.shp')
+
+    ## STEP3, break the polygons into separate multipolygons, remove the links (lines)
+    shp_temp = shp_temp.buffer(-epsilon).buffer(epsilon)
+    shp_temp.to_file('temp4.shp')
+
+    ## STEP4, break the polygones into separete shape in a shapefile
+    shp = gpd.read_file('temp4.shp')
+
+    shp_all = None
+
+    for index, _ in shp.iterrows():
+
+        polys = shp.geometry.iloc[index] # get the shape
+
+        if polys.type is 'Polygon':
+            shp_temp = gpd.GeoSeries(polys) # convert multipolygon to a shapefile with polygons only
+            shp_temp = gpd.GeoDataFrame(shp_temp) # convert multipolygon to a shapefile with polygons only
+            shp_temp.columns = ['geometry'] # naming geometry column
+        if polys.type is 'MultiPolygon':
+            shp_temp = gpd.GeoDataFrame(polys) # convert multipolygon to a shapefile with polygons only
+            shp_temp.columns = ['geometry'] # naming geometry column
+
+        if shp_all is None:
+            shp_all = shp_temp
+        else:
+            shp_all = shp_all.append(shp_temp)
+
+    shp_all.to_file(name_of_result_file)
+
 
 def extract_poly_coords(geom):
     if geom.type == 'Polygon':
@@ -80,7 +170,41 @@ def extract_poly_coords(geom):
     return {'exterior_coords': exterior_coords,
             'interior_coords': interior_coords}
 
-def shp_std_2 (src_dir_name, src_file_name, final_dir_name, final_file_name, Field_ID_name, epsilon, list_id):
+
+def shp_std_2(name_of_source_file,
+              name_of_result_file,
+              name_of_result_file_fixed_shapes,
+              ID_field,
+              epsilon,
+              list_id):
+    """
+    @ author:                  Shervan Gharari
+    @ Github:                  https://github.com/ShervanGharari/shapefile_standardization
+    @ author's email id:       sh.gharari@gmail.com
+    @license:                  MIT
+
+    This function gets name of a shapefile and remove inernal holes
+
+    Arguments
+    ---------
+    name_of_source_file: string, the name of the source file including path and extension
+    name_of_result_file: string, the name of the final file including path and extension
+    name_of_result_file_fixed_shapes: string, the name of the file that includes fixed shapes including path and extension
+    name_of_log_file: string, the name of the text log file with path and txt extension
+    ID_field: string, the name of the field in the original shapefile that is used for keeping track of holes
+    epsilon: real, the minimum distance for buffer operation
+    list_id: list of shape IDs that should be corrected
+
+    Returns
+    -------
+
+
+    Saves Files
+    -------
+    a shp file that includes corrected polygones
+    a possible shapefile that includes the fixed shapes
+    """
+    
     # load the shapefile
     shp = gpd.read_file(src_dir_name+src_file_name)
     print(shp.shape[0])
@@ -89,7 +213,7 @@ def shp_std_2 (src_dir_name, src_file_name, final_dir_name, final_file_name, Fie
     
     for ID in list_id:
         for index, _ in shp.iterrows():
-            if shp[Field_ID_name][index] == ID:
+            if shp[ID_field][index] == ID:
                 shp_temp = shp.geometry.iloc[index]
                 shp_temp = shp_temp.buffer(epsilon) # to amalgamate the polygones of multipolygons into a polygon
                 shp_temp = gpd.GeoSeries(shp_temp) # to geoseries
@@ -119,7 +243,12 @@ def shp_std_2 (src_dir_name, src_file_name, final_dir_name, final_file_name, Fie
         else:
             print('input output have different lenght; check')
 
-def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
+def shp_std_1(name_of_source_file,
+            name_of_result_file,
+            name_of_result_file_holes,
+            name_of_log_file,
+            ID_field,
+            area_tolerance):
     """
     @ author:                  Shervan Gharari
     @ Github:                  https://github.com/ShervanGharari/shapefile_standardization
@@ -131,9 +260,10 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
 
     Arguments
     ---------
-    name_of_file: string, the name of the shp file
-    name_of_ext: string, the name of the shp file format (".shp" or ".gpkg")
-    name_of_dir: string, the name of directory where the shp file is located
+    name_of_source_file: string, the name of the source file including path and extension
+    name_of_result_file: string, the name of the final file including path and extension
+    name_of_result_file_holes: string, the name of the file that includes holes including path and extension
+    name_of_log_file: string, the name of the text log file with path and txt extension
     ID_field: string, the name of the field in the original shapefile that is used for keeping track of holes
     area_tolerance: float; the tolerance to compare area before and after correction and report differences
 
@@ -144,17 +274,15 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
     Saves Files
     -------
     a shp file that includes corrected polygones
-    a shp file that includes possible holes in the polygones which can be taken out from the polygon shp
+    a possible shapefile that includes the removed problematice holes
     a log file in the same folder descringin the invalid shapefiles
     """
 
-    shp_original = gpd.read_file(name_of_dir+name_of_file+name_of_ext)
-    # shp_original = shp_original.sort_values([ID_field]) # it doesnt sort the shapefile, I dont know why!?
+    shp_original = gpd.read_file(name_of_source_file)
     shp_poly     = shp_original
     shp_hole     = None
 
-    # print(shp_original.head(1000))
-    logfile = open(name_of_dir+name_of_file+'_log.txt',"w") # preparing the log file to write
+    logfile = open(name_of_log_file,"w") # preparing the log file to write
 
     number_invalid = 0 # counter for invalid shapes
     number_resolved = 0 # counter for resolved invalid shapes
@@ -162,11 +290,11 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
 
     for index, _ in shp_original.iterrows():
 
-        # print(index)
+        # initialization
         polys = shp_original.geometry.iloc[index] # get the shape
         area_before = polys.area # area before changes
-
         invalid = False # initializing invalid as false
+        
         # check if the shapefile is valid
         if polys.is_valid is False: # check if the geometry is invalid
             number_invalid = number_invalid + 1
@@ -235,9 +363,9 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
             logfile.write(str_temp)
 
 
-    shp_poly.to_file(name_of_dir+name_of_file+'_valid_poly')
+    shp_poly.to_file(name_of_result_file)
     if shp_hole is not None:
-        shp_hole.to_file(name_of_dir+name_of_file+'_hole') #save any hole to check
+        shp_hole.to_file(name_of_result_file_holes) #save any hole to check
 
     str_temp = "Total number of shapes = "+str(shp_original.shape[0])+" \n"
     logfile.write(str_temp)
@@ -248,5 +376,3 @@ def shp_std(name_of_file, name_of_ext, name_of_dir, ID_field, area_tolerance):
     str_temp = "Total number of not resolved invalid shapes = "+str(number_not_resolved)+" \n"
     logfile.write(str_temp)
     logfile.close() # close the log gile
-
-
