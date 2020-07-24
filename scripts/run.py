@@ -2,77 +2,100 @@
 
 from shp_std_def import *
 
+#############
+#############
+# INPUTS, Download of the shapefiles
+
+IDs = ['21','22', '23', '24', '25','26','27','28','29']
+#IDs = ['21']
+http_path = 'http://hydrology.princeton.edu/data/mpan/for_martyn/'
+path = '/Users/shg096/Desktop/test/'
 path = '/project/6008034/Model_Output/ClimateForcingData/MERIT_Hydro_basin_bugfixed/'
-field_name = 'COMID'
-tolerance = 0.0000001 # 1000 m2 in equal area projection an arbitatry value which is less than a DEM grid used for creating the product
-extension = '.shp'
 
-shp_std('cat_pfaf_11_MERIT_Hydro_v07_Basins_v01_bugfix1_b', extension, path, field_name, tolerance) # one of the shape COMID 11040208 is manually corrected
-shp_std('cat_pfaf_12_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_13_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_14_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_15_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_16_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_17_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_18_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
 
-shp_std('cat_pfaf_21_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_22_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_23_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_24_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_25_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_26_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_27_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_28_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_29_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
+#############
+#############
+# creat subfolders in folders
+if os.path.exists(path+'cat'):
+    os.mkdir(path+'cat')
+if os.path.exists(path+'riv'):
+    os.mkdir(path+'riv')
+if os.path.exists(path+'hill'):
+    os.mkdir(path+'hill')
+if os.path.exists(path+'cat_step_0'):
+    os.mkdir(path+'cat_step_0')
+if os.path.exists(path+'cat_step_1'):
+    os.mkdir(path+'cat_step_1')
+if os.path.exists(path+'cat_fixed'):
+    os.mkdir(path+'cat_fixed')
+if os.path.exists(path+'hill_fixed'):
+    os.mkdir(path+'hill_fixed')
 
-shp_std('cat_pfaf_31_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_32_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_33_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_34_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_35_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_36_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
 
-shp_std('cat_pfaf_41_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_42_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_43_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_44_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_45_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_46_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_47_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_48_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_49_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
+#############
+#############
+# download the shapefiles
+for ID in IDs:
+    download(path+'cat/',
+         http_path+'MERIT_Hydro_v07_Basins_v01_bugfix1/pfaf_level_02/',
+        'cat',
+        ID)
+    download(path+'riv/',
+         http_path+'MERIT_Hydro_v07_Basins_v01_bugfix1/pfaf_level_02/',
+        'riv',
+        ID)
+    download(path+'hill/',
+         http_path+'coastal_hillslopes/',
+        'hill',
+        ID)
 
-shp_std('cat_pfaf_51_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_52_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_53_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_54_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_55_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_56_MERIT_Hydro_v07_Basins_v01_bugfix1_b', extension, path, field_name, tolerance) # one of the shapes COMID 56045327 is manually corrected
-shp_std('cat_pfaf_57_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
+#############
+#############
+# clean 2 prolematice shapes by removing holes
+list_id = [11040208,56045327]  # the COMID IDs that result in shp_std_hard to crash hole outside shell
+for ID in IDs:
+    shp_std_light(path+'cat/cat_pfaf_'+ID+'_MERIT_Hydro_v07_Basins_v01_bugfix1.shp',
+                  path+'cat_step_0/cat_pfaf_'+ID+'_MERIT_Hydro_v07_Basins_v01_bugfix1.shp',
+                  path+'cat_step_0/cat_pfaf_'+ID+'_MERIT_Hydro_v07_Basins_v01_bugfix1_fixed.shp',
+                 'COMID',
+                  0.0000001,
+                  list_id)
 
-shp_std('cat_pfaf_61_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_62_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_63_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_64_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_65_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_66_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_67_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
 
-shp_std('cat_pfaf_71_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_72_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_73_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_74_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_75_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_76_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_77_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_78_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
+#############
+#############
+# correction of shapefiles
+for ID in IDs:
+    shp_std_hard(path+'cat_step_0/cat_pfaf_'+ID+'_MERIT_Hydro_v07_Basins_v01_bugfix1.shp',
+                 path+'cat_step_1/cat_pfaf_'+ID+'_MERIT_Hydro_v07_Basins_v01_bugfix1_corr1.shp',
+                 path+'cat_step_1/cat_pfaf_'+ID+'_MERIT_Hydro_v07_Basins_v01_bugfix1_corr1_hole.shp',
+                 path+'cat_step_1/cat_pfaf_'+ID+'_MERIT_Hydro_v07_Basins_v01_bugfix1_corr1_log.txt',
+                 'COMID',
+                 0.0000000001)
 
-shp_std('cat_pfaf_81_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_82_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_83_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_84_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_85_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
-shp_std('cat_pfaf_86_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
 
-shp_std('cat_pfaf_91_MERIT_Hydro_v07_Basins_v01_bugfix1', extension, path, field_name, tolerance) #
+#############
+#############
+# correction of shapefiles
+list_id = [11038670,11040208,11035758,
+           25000050,28045843,28046799,28047182,28050769,28059551,28064206,
+           29020703,29028261,29034407,29048575,29050425,29071345,29092185,
+           72055397,72055872,72058490,75027926,78012325,
+           81033705,82042214,82041566,82002087,
+           91025753,91035154,91035236,91035911]  # list of COMID that are still not valid based on QGIS
+for ID in IDs:
+    shp_std_light(path+'cat_step_1/cat_pfaf_'+ID+'_MERIT_Hydro_v07_Basins_v01_bugfix1_corr1.shp',
+                  path+ 'cat_fixed/cat_pfaf_'+ID+'_MERIT_Hydro_v07_Basins_v01_bugfix1_corr2.shp',
+                  path+ 'cat_fixed/cat_pfaf_'+ID+'_MERIT_Hydro_v07_Basins_v01_bugfix1_corr2_fixedshp.shp',
+                 'COMID',
+                 0.0000001,
+                 list_id)
+
+#############
+#############
+# correction the unresolved hillslope
+for ID in IDs:
+	shp_hill (path+'hill/hillslope_'+ID+'_clean.shp',
+	          path+'cat/cat_pfaf_'+ID+'_MERIT_Hydro_v07_Basins_v01_bugfix1.shp',
+	          path+'hill_fixed/hillslope_'+ID+'_clean.shp',
+	          0.0000001)

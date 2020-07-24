@@ -17,6 +17,17 @@ pip install --no-index pandas
 pip install --no-index fiona
 pip install --no-index shapely
 pip install --no-index geopandas
+pip install --no-index bs4
+pip install --no-index urllib
+pip install --no-index requests
+pip install --no-index re
+pip install --no-index glob
+pip install --no-index time
+pip install --no-index netCDF4
+pip install --no-index numpy
+pip install --no-index xarray
+pip install --no-index os
+
 
 chmod +x run.py
 ./run.py # run the scripts
