@@ -3,21 +3,54 @@ from shapely.ops import unary_union
 import shapely
 import geopandas as gpd
 from shapely.geometry import Polygon
+from shapely.geometry import Point
 from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
 import requests
 import re
-
 import glob
 import time
-import geopandas as gpd
 import netCDF4 as nc4
 import numpy as np
 import pandas as pd
 import xarray as xr
-from shapely.geometry import Polygon
-# not neccessary for the function but for visualziation
-import matplotlib.pyplot as plt
+
+
+def remove_dublicate_point(poly):
+    """
+    @ author:                  Shervan Gharari
+    @ Github:                  https://github.com/ShervanGharari/shapefile_standardization
+    @ author's email id:       sh.gharari@gmail.com
+    @license:                  MIT
+    
+    This function gets a shapely polygon and remove dublicated point there
+    
+
+    Arguments
+    ---------
+    poly: shapely polygon, the input shapely polygon
+    
+
+    Returns
+    -------
+
+
+    Saves Files
+    -------
+    downlaod the files from the websites and save them in the correct location
+    
+    """
+    A = 10000000
+    x, y = poly.exterior.coords.xy
+    X  = np.floor(np.array(x)*A)/A
+    Y  = np.floor(np.array(y)*A)/A
+    X = np.transpose(X)
+    Y = np.transpose(Y)
+    df = pd.DataFrame({'X': X, 'Y': Y})
+    df = df.drop_duplicates()
+    df['geometry'] = df.apply(lambda row: Point(row.X, row.Y), axis=1)
+    poly = Polygon([(p.x, p.y)  for p in  df.geometry])
+    return poly
 
 
 def download(des_loc,
@@ -89,7 +122,7 @@ def download(des_loc,
             print('download was not successful for '+url)
 
 
-def shp_hill (name_of_source_file, name_of_cat_file, name_of_result_file):
+def shp_hill (name_of_source_file, name_of_cat_file, name_of_result_file, epsilon):
     """
     @ author:                  Shervan Gharari
     @ Github:                  https://github.com/ShervanGharari/shapefile_standardization
@@ -105,6 +138,7 @@ def shp_hill (name_of_source_file, name_of_cat_file, name_of_result_file):
         for the unresolved hills
     name_of_result_file: string, the name of the file that includes fixed shapes
         including path and extension
+    epsilon
     
 
     Returns
@@ -134,7 +168,7 @@ def shp_hill (name_of_source_file, name_of_cat_file, name_of_result_file):
     shp_temp = gpd.overlay(shp_temp, cat1, how='difference')
     #shp_temp.to_file('temp3.shp')
 
-    ## STEP3, break the polygons into separate multipolygons, remove the links (lines)
+    ## STEP3, break the touching polygons into separate polygons, remove the links (lines)
     shp_temp = shp_temp.buffer(-epsilon).buffer(epsilon)
     shp_temp.to_file('temp4.shp')
 
@@ -159,6 +193,11 @@ def shp_hill (name_of_source_file, name_of_cat_file, name_of_result_file):
             shp_all = shp_temp
         else:
             shp_all = shp_all.append(shp_temp)
+
+    for index, _ in shp_all.iterrows(): # assuming the code convert everything to polygone (and not multi)
+        poly = shp_all.geometry.iloc[index]
+        poly = remove_dublicate_point (poly)
+        shp_all.geometry.iloc[index] = poly
 
     shp_all.to_file(name_of_result_file)
 
@@ -244,6 +283,9 @@ def shp_std_light(name_of_source_file,
                 shp_temp = gpd.GeoDataFrame(shp_temp) # geo dataframe
                 shp_temp.columns = ['geometry'] # name the column as geometry
                 shp_new.geometry.iloc[index] = shp_temp.geometry.iloc[0] # pass that to the new shape
+                poly = shp_new.geometry.iloc[index]
+                poly = remove_dublicate_point (poly)
+                shp_new.geometry.iloc[index] = poly
     
     shp_new.to_file(name_of_result_file)
     shp_new = shp_new [shp_new.flag ==1]
